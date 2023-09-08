@@ -9,7 +9,7 @@ int main() {
     {
         int thread_num = omp_get_thread_num();
         int num_threads = omp_get_num_threads();
-        printf("Thread %d of %d: Hello!\n", thread_num, num_threads);
+        printf("Hello! from Thread No. %d out of %d\n", thread_num, num_threads);
     }
 	
 	
