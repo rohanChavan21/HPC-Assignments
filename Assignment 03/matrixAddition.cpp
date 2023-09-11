@@ -1,66 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
-#include <time.h>
 
-#define MAX_SIZE 2000
+// Function to initialize a 2D matrix with random values
+void initializeMatrix(int** matrix, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            matrix[i][j] = rand() % 100; // Adjust the range as needed
+        }
+    }
+}
 
-void matrixAddition(int A[MAX_SIZE][MAX_SIZE], int B[MAX_SIZE][MAX_SIZE], int C[MAX_SIZE][MAX_SIZE], int size) {
+// Function to perform matrix addition
+void matrixAddition(int** A, int** B, int** C, int rows, int cols) {
     #pragma omp parallel for
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
             C[i][j] = A[i][j] + B[i][j];
         }
     }
 }
 
 int main() {
-    int matrixSizes[] = {250, 500, 750, 1000, 2000};
-    int threadCounts[] = {1, 2, 4, 8};
+    int sizes[] = {250, 500, 750, 1000, 2000};
+    int numThreads[] = {1, 2, 4, 8}; // Vary the number of threads
+    double start, end;
+    
+    for (int i = 0; i < sizeof(sizes) / sizeof(int); i++) {
+        int size = sizes[i];
+        int** A = (int**)malloc(size * sizeof(int*));
+        int** B = (int**)malloc(size * sizeof(int*));
+        int** C = (int**)malloc(size * sizeof(int*));
 
-    for (int m = 0; m < 5; m++) {
-        int size = matrixSizes[m];
-        int A[MAX_SIZE][MAX_SIZE], B[MAX_SIZE][MAX_SIZE], C[MAX_SIZE][MAX_SIZE];
-        double startTime, endTime;
-
-        // Initialize matrices A and B with random values
-        srand(time(NULL));
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                A[i][j] = rand() % 100;
-                B[i][j] = rand() % 100;
-            }
+        for (int j = 0; j < size; j++) {
+            A[j] = (int*)malloc(size * sizeof(int));
+            B[j] = (int*)malloc(size * sizeof(int));
+            C[j] = (int*)malloc(size * sizeof(int));
         }
 
-        printf("Matrix Size: %dx%d\n", size, size);
+        // Initialize matrices A and B
+        initializeMatrix(A, size, size);
+        initializeMatrix(B, size, size);
 
-        // Measure execution time for 1 thread
-        omp_set_num_threads(1);
-        startTime = omp_get_wtime();
-        matrixAddition(A, B, C, size);
-        endTime = omp_get_wtime();
-        double elapsedTime1Thread = endTime - startTime;
-        printf("Execution Time (1 Thread): %f seconds\n", elapsedTime1Thread);
+        for (int t = 0; t < sizeof(numThreads) / sizeof(int); t++) {
+            int threads = numThreads[t];
+            omp_set_num_threads(threads);
 
-        for (int t = 0; t < 4; t++) {
-            int numThreads = threadCounts[t];
-            
-            // Set the number of threads
-            omp_set_num_threads(numThreads);
+            start = omp_get_wtime();
 
-            // Measure execution time for multiple threads
-            startTime = omp_get_wtime();
-            matrixAddition(A, B, C, size);
-            endTime = omp_get_wtime();
-            double elapsedTimeNThreads = endTime - startTime;
-            printf("Execution Time (%d Threads): %f seconds\n", numThreads, elapsedTimeNThreads);
+            // Perform matrix addition in parallel
+            matrixAddition(A, B, C, size, size);
 
-            // Calculate and print speedup
-            double speedup = elapsedTime1Thread / elapsedTimeNThreads;
-            printf("Speedup: %f\n", speedup);
+            end = omp_get_wtime();
+
+            printf("Matrix Size: %d, Threads: %d, Execution Time: %f seconds\n", size, threads, end - start);
         }
 
-        printf("\n");
+        // Free memory
+        for (int j = 0; j < size; j++) {
+            free(A[j]);
+            free(B[j]);
+            free(C[j]);
+        }
+        free(A);
+        free(B);
+        free(C);
     }
 
     return 0;

@@ -22,16 +22,16 @@ int main() {
         vector1[i] = rand() % 100;
         vector2[i] = rand() % 100;
     }
-    printf("First vector is: \n");
-    for(int i=0; i<n; i++){
-        printf("%d ", vector1[i]);
-    }
-    printf("\n");
+    // printf("First vector is: \n");
+    // for(int i=0; i<n; i++){
+    //     printf("%d ", vector1[i]);
+    // }
+    // printf("\n");
     
-    printf("Second vector is: \n");
-    for(int i=0; i<n; i++){
-        printf("%d ", vector2[i]);
-    }
+    // printf("Second vector is: \n");
+    // for(int i=0; i<n; i++){
+    //     printf("%d ", vector2[i]);
+    // }
 
     printf("\n");
 

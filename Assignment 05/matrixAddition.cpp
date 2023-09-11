@@ -1,68 +1,69 @@
 #include <iostream>
 #include <vector>
-#include <cstdlib>
-#include <ctime>
 #include <omp.h>
-
 using namespace std;
 
-void initializeMatrix(int size, vector<vector<int>>& matrix) {
-    matrix.resize(size, vector<int>(size));
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j <= i; j++) {
-            matrix[i][j] = rand() % 100 + 1; // Initialize with random values (1-100)
+// Function to generate a random lower triangular matrix
+void generateLowerTriangularMatrix(vector<vector<int>>& mat, int size) {
+    mat.resize(size);
+    for (int i = 0; i < size; ++i) {
+        mat[i].resize(size, 0);
+        for (int j = 0; j <= i; ++j) {
+            mat[i][j] = rand() % 10; // Fill with random values (change as needed)
         }
     }
 }
 
-void printMatrix(const vector<vector<int>>& matrix, const string& title) {
-    cout << title << ":\n";
-    for (const auto& row : matrix) {
-        for (int value : row) {
-            cout << value << " ";
+// Function to print a matrix
+void printMatrix(const vector<vector<int>>& mat, int size) {
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            cout << mat[i][j] << " ";
         }
-        cout << "\n";
+        cout << endl;
     }
-    cout << "\n";
 }
 
 int main() {
-    int numThreads, matrixSize;
+    int size, numThreads;
+
+    cout << "Enter the size of the matrix: ";
+    cin >> size;
 
     cout << "Enter the number of threads: ";
     cin >> numThreads;
 
-    cout << "Enter the size of the square matrix: ";
-    cin >> matrixSize;
+    vector<vector<int>> matrix1, matrix2, result;
 
-    srand(time(nullptr)); // Initialize random number generator
-
-    vector<vector<int>> matrixA, matrixB, result;
-
-    // Initialize matrices with random values
-    initializeMatrix(matrixSize, matrixA);
-    initializeMatrix(matrixSize, matrixB);
+    double stime = omp_get_wtime();
+    generateLowerTriangularMatrix(matrix1, size);
+    generateLowerTriangularMatrix(matrix2, size);
+    result.resize(size, vector<int>(size, 0));
 
     // Set the number of threads
     omp_set_num_threads(numThreads);
 
-    // Parallel section for matrix summation
-    #pragma omp parallel shared(matrixA, matrixB, result)
-    {
-        #pragma omp for schedule(static)
-        for (int i = 0; i < matrixSize; i++) {
-            vector<int> row;
-            for (int j = 0; j <= i; j++) {
-                row.push_back(matrixA[i][j] + matrixB[i][j]);
-            }
-            result.push_back(row);
+    // Parallel computation of the sum
+    #pragma omp parallel for shared(matrix1, matrix2, result) schedule(static)
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j <= i; ++j) {
+            result[i][j] = matrix1[i][j] + matrix2[i][j];
         }
     }
 
-    // Print original matrices and the resulting matrix
-    printMatrix(matrixA, "Original Matrix A");
-    printMatrix(matrixB, "Original Matrix B");
-    printMatrix(result, "Resulting Matrix");
+    double etime = omp_get_wtime();
+
+    // Print the matrices and result
+    cout << "Matrix 1:" << endl;
+    printMatrix(matrix1, size);
+
+    cout << "Matrix 2:" << endl;
+    printMatrix(matrix2, size);
+
+    cout << "Result:" << endl;
+    printMatrix(result, size);
+    double time = etime - stime;
+    cout<<"Time Taken is "<<time<<endl;
 
     return 0;
 }

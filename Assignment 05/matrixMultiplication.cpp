@@ -33,6 +33,7 @@ int main() {
     // Set the number of threads
     omp_set_num_threads(numThreads);
 
+    double stime = omp_get_wtime();
     // Parallel section for matrix multiplication
     #pragma omp parallel for shared(matrixA, matrixB, matrixC)
     for (int i = 0; i < matrixSize; i++) {
@@ -42,15 +43,17 @@ int main() {
             }
         }
     }
+    double etime = omp_get_wtime();
 
+    cout<<"Time Taken is "<< etime - stime <<endl;
     // Print the resulting matrix C
-    cout << "Resulting Matrix:" << endl;
-    for (int i = 0; i < matrixSize; i++) {
-        for (int j = 0; j < matrixSize; j++) {
-            cout << matrixC[i][j] << " ";
-        }
-        cout << endl;
-    }
+    // cout << "Resulting Matrix:" << endl;
+    // for (int i = 0; i < matrixSize; i++) {
+    //     for (int j = 0; j < matrixSize; j++) {
+    //         cout << matrixC[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
 
     return 0;
 }

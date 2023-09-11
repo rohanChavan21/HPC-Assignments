@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #define BUFFER_SIZE 10
-#define NUM_ITEMS 20
+#define NUM_ITEMS 10
 
 int buffer[BUFFER_SIZE];
 int in = 0, out = 0, count = 0;
@@ -82,7 +82,7 @@ int main() {
     omp_init_lock(&empty);
 
     omp_set_num_threads(numProducers + numConsumers);
-
+    double stime = omp_get_wtime();
     #pragma omp parallel
     {
         int id = omp_get_thread_num();
@@ -93,6 +93,11 @@ int main() {
             consumer(id - numProducers);
         }
     }
+
+    double etime = omp_get_wtime();
+    double time = etime - stime;
+
+    printf("Time taken is %f", time);
 
     omp_destroy_lock(&mutex);
     omp_destroy_lock(&full);

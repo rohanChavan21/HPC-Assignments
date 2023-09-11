@@ -32,10 +32,10 @@ int main(){
     double etime = omp_get_wtime();
     double time = etime - stime;
 
-    printf("Resulting vector: \n");
-    for(int i=0; i<n; i++){
-        printf("%d ", vector[i]);
-    }
+    // printf("Resulting vector: \n");
+    // for(int i=0; i<n; i++){
+    //     printf("%d ", vector[i]);
+    // }
     printf("\n");
     printf("The time taken is %f ", time);
 
